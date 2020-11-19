@@ -15,7 +15,15 @@ public class user {
             String ch=sc.next();
             if(ch.contentEquals("y")||ch.contentEquals("Y"))
             {
-                signup.signup(username,password);
+                int s=signup.signup(username,password);
+                if(s==0)
+                {
+                    System.out.println("Terminated");    //username exists
+                }
+                else
+                {
+                    System.out.println("New User Created");
+                }
             }
             else
             {
