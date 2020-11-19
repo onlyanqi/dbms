@@ -1,4 +1,3 @@
-Chetan
-pass
 user
-password
+pass
+

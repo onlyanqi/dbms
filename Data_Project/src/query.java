@@ -54,7 +54,7 @@ public class query {
             }
             else{
                 // Nothing matches with Regex patterns
-                System.out.println("Please make sure the input is in standard SQL format.\n" + sql);
+                System.out.println("Please make sure the input is in standard SQL format.\n" + sql + " is not valid.");
             }
             // Link to next input
             System.out.println("Please enter the SQL queries or type 'exit' to quit.");
