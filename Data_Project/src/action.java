@@ -101,6 +101,9 @@ public class action {
                             line= br.readLine();   //process till we get to new record
                         }
                         flag=1;  //confirms table was deleted
+                        File table=new File(tablename+".txt");
+                        table.delete();    //deletes the file associated with table data
+
                     }
 
                     pw.write(username);  //if not the same tablename but same username,first write the username
