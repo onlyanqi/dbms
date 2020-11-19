@@ -19,7 +19,7 @@ public class user {
             }
         } else  //user successfully logged in
         {
-            query.parse();
+            query.parse(username, password);
             //Link user to sql processing in a new class
         }
     }
