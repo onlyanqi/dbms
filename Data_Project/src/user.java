@@ -23,7 +23,7 @@ public class user {
                 else
                 {
                     System.out.println("New User Created");
-                    query.parse(username, password);
+                    query.parse(username);
                 }
             }
             else
@@ -33,7 +33,7 @@ public class user {
         }
         else  //user successfully logged in
         {
-            query.parse(username, password);
+            query.parse(username);
             //Link user to sql processing in a new class
         }
     }

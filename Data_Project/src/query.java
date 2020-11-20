@@ -7,12 +7,12 @@ public class query {
     // Regex patterns to parse SQL statements and split them into the basic parts
     private static final Pattern CREATE_TABLE_PATTERN = Pattern.compile("(?i)(CREATE\\sTABLE\\s(\\w+)\\s?\\(((?:\\s?\\w+\\s\\w+\\(?[0-9]*\\)?,?)+)\\)\\s?;)");
     private static final Pattern DROP_TABLE_PATTERN = Pattern.compile("(?i)(DROP\\sTABLE\\s(\\w+);)");
-    private static final Pattern SELECT_PATTERN = Pattern.compile("(?i)(SELECT\\s([\\s\\S]+)\\sFROM\\s([\\s\\S]+)(\\sWHERE([\\s\\S]+))?;)");
+    private static final Pattern SELECT_PATTERN = Pattern.compile("(?i)(SELECT\\s([\\s\\S]+)\\sFROM\\s(\\w+)+\\s?(WHERE\\s([\\s\\S]+))?;)");
     private static final Pattern INSERT_PATTERN = Pattern.compile("(?i)(INSERT\\sINTO\\s+(\\w+)\\s+\\(([\\s\\S]+)\\)\\s+VALUES\\s+\\(([\\s\\S]+)\\);)");
     private static final Pattern DELETE_PATTERN = Pattern.compile("(?i)(DELETE\\sFROM\\s+(\\w+)\\s+WHERE\\s+([\\s\\S]+);)");
     private static final Pattern UPDATE_PATTERN = Pattern.compile("(?i)(UPDATE\\s(\\w+)\\sSET\\s([\\s\\S]+)\\sWHERE\\s([\\s\\S]+);)");
 
-    public static void parse(String username, String password) {
+    public static void parse(String username) {
         System.out.println("Please enter the SQL queries or type 'exit' to quit");
         Scanner sc = new Scanner(System.in);
         String sql;
@@ -31,22 +31,22 @@ public class query {
             if (createTableSQL.find()) {
                 // To do: write event logs for the user query
                 System.out.println("create a table: " + sql);
-                create(createTableSQL, username, password);
+                create(createTableSQL, username);
             } else if (dropTableSQL.find()) {
                 System.out.println("drop a table: " + sql);
-                drop(dropTableSQL, username, password);
+                drop(dropTableSQL, username);
             } else if (selectSQL.find()) {
                 System.out.println("select data: " + sql);
-                select(selectSQL, username, password);
+                select(selectSQL, username);
             } else if (insertSQL.find()) {
                 System.out.println("insert data: " + sql);
-                insert(insertSQL, username, password);
+                insert(insertSQL, username);
             } else if (deleteSQL.find()) {
                 System.out.println("delete data: " + sql);
-                delete(deleteSQL, username, password);
+                delete(deleteSQL, username);
             } else if (updateSQL.find()) {
                 System.out.println("update data: " + sql);
-                update(updateSQL, username, password);
+                update(updateSQL, username);
             } else {
                 // Nothing matches with Regex patterns
                 System.out.println("Please make sure the input is in standard SQL format.\n" + sql + " is not valid.");
@@ -57,7 +57,7 @@ public class query {
     }
 
     // Parse the statements deeper, to prepare for the actual operations
-    private static void create(Matcher createTable, String username, String password) {
+    private static void create(Matcher createTable, String username) {
         String tableName = createTable.group(2);
         String columns = createTable.group(3);
         // Separate columns into 2 lists: column name and datatype
@@ -71,39 +71,44 @@ public class query {
             dataType.add(columnType[1]);
         }
         System.out.println(columnName + " " + dataType);
+        // Link user to actions
         int created = action.create(username, tableName, columnName, dataType);
+        //if returned 0 then user can't create otherwise print user can create a table
         if (created == 0) {
             System.out.println("The table: " + tableName + "cannot be created.");
-        }else{
+        } else {
             System.out.println("The table: " + tableName + "is created by: " + username);
         }
-
-        // Link user to actions
-
-        //if returned 0 then user can't create otherwise print user can create a table
-
     }
 
-    private static void drop(Matcher dropTable, String username, String password) {
-        String tableName = dropTable.group(1);
-
+    private static void drop(Matcher dropTable, String username) {
+        String tableName = dropTable.group(2);
+        System.out.println(tableName);
         // Link user to actions
 
         //returns 1 if table was dropped
         //returns 0 if user can't drop the table
     }
 
-    private static void select(Matcher select, String username, String password) {
-        String fieldNames = select.group(1);
-        String tableName = select.group(2);
-        if (select.group(3) != null) {
-            String conditions = select.group(3);
+    private static void select(Matcher select, String username) {
+        String fieldNames = select.group(2);
+        String[] fieldNamesString = fieldNames.split("\\s*,\\s*");
+        List<String> fieldNamesStringList = Arrays.asList(fieldNamesString);
+        System.out.println(fieldNamesStringList);
+        String tableName = select.group(3);
+        System.out.println(tableName);
+        if (select.group(4) != null) {
+            String condition = select.group(5);
+            String[] conditionString = condition.split("\\s*=\\s*");
+            String conditionName = conditionString[0];
+            String conditionValue = conditionString[1];
+            System.out.println(conditionName + "\n" + conditionValue);
         }
 
         // Link user to actions
     }
 
-    private static void insert(Matcher insert, String username, String password) {
+    private static void insert(Matcher insert, String username) {
         String tableName = insert.group(2);
         String keys = insert.group(3);
         String[] columnName = keys.split("\\s*,\\s*");
@@ -117,18 +122,33 @@ public class query {
         // Link user to actions
     }
 
-    private static void delete(Matcher delete, String username, String password) {
-        String tableName = delete.group(1);
-        String conditions = delete.group(2);
+    private static void delete(Matcher delete, String username) {
+        String tableName = delete.group(2);
+        String condition = delete.group(3);
+        String[] conditionString = condition.split("\\s*=\\s*");
+        String conditionName = conditionString[0];
+        String conditionValue = conditionString[1];
+        System.out.println(tableName + "\n" + conditionName + "\n" + conditionValue);
 
         // Link user to actions
     }
 
-    private static void update(Matcher update, String username, String password) {
-        String tableName = update.group(1);
-        String updates = update.group(2);
-        String conditions = update.group(3);
-
+    private static void update(Matcher update, String username) {
+        String tableName = update.group(2);
+        String set = update.group(3);
+        String[] setString = set.split("\\s*,\\s*");
+        ArrayList<String> column = new ArrayList<>();
+        ArrayList<String> value = new ArrayList<>();
+        for(String s : setString){
+            String[] columnValue = s.split("\\s*=\\s*"); // separate by whitespace
+            column.add(columnValue[0]);
+            value.add(columnValue[1]);
+        }
+        String condition = update.group(4);
+        String[] conditionString = condition.split("\\s*=\\s*");
+        String conditionName = conditionString[0];
+        String conditionValue = conditionString[1];
+        System.out.println(tableName + "\n" + column +"\n" + value + "\n" + conditionName + "\n" + conditionValue);
         // Link user to actions
     }
 }
