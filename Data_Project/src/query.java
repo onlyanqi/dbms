@@ -28,31 +28,26 @@ public class query {
             Matcher deleteSQL = DELETE_PATTERN.matcher(sql);
             Matcher updateSQL = UPDATE_PATTERN.matcher(sql);
 
-            if(createTableSQL.find()){
+            if (createTableSQL.find()) {
                 // To do: write event logs for the user query
-                System.out.println("create a table: "+ sql);
+                System.out.println("create a table: " + sql);
                 create(createTableSQL, username, password);
-            }else if(dropTableSQL.find()){
+            } else if (dropTableSQL.find()) {
                 System.out.println("drop a table: " + sql);
                 drop(dropTableSQL, username, password);
-            }
-            else if (selectSQL.find()) {
+            } else if (selectSQL.find()) {
                 System.out.println("select data: " + sql);
                 select(selectSQL, username, password);
-            }
-            else if(insertSQL.find()) {
+            } else if (insertSQL.find()) {
                 System.out.println("insert data: " + sql);
                 insert(insertSQL, username, password);
-            }
-            else if (deleteSQL.find()) {
+            } else if (deleteSQL.find()) {
                 System.out.println("delete data: " + sql);
                 delete(deleteSQL, username, password);
-            }
-            else if (updateSQL.find()) {
+            } else if (updateSQL.find()) {
                 System.out.println("update data: " + sql);
                 update(updateSQL, username, password);
-            }
-            else{
+            } else {
                 // Nothing matches with Regex patterns
                 System.out.println("Please make sure the input is in standard SQL format.\n" + sql + " is not valid.");
             }
@@ -63,19 +58,37 @@ public class query {
 
     // Parse the statements deeper, to prepare for the actual operations
     private static void create(Matcher createTable, String username, String password) {
-        String tableName = createTable.group(1);
-        String columns = createTable.group(2);
+        String tableName = createTable.group(2);
+        String columns = createTable.group(3);
         // Separate columns into 2 lists: column name and datatype
+        String[] columnString = columns.split("\\s*,\\s*"); // separate by comma
+        List<String> columnStringList = Arrays.asList(columnString); //List contains column name and datatype, eg. id int
+        ArrayList<String> columnName = new ArrayList<>();
+        ArrayList<String> dataType = new ArrayList<>();
+        for (String s : columnStringList) {
+            String[] columnType = s.split("\\s+"); // separate by whitespace
+            columnName.add(columnType[0]);
+            dataType.add(columnType[1]);
+        }
+        System.out.println(columnName + " " + dataType);
+        int created = action.create(username, tableName, columnName, dataType);
+        if (created == 0) {
+            System.out.println("The table: " + tableName + "cannot be created.");
+        }else{
+            System.out.println("The table: " + tableName + "is created by: " + username);
+        }
 
         // Link user to actions
 
         //if returned 0 then user can't create otherwise print user can create a table
+
     }
 
     private static void drop(Matcher dropTable, String username, String password) {
         String tableName = dropTable.group(1);
 
         // Link user to actions
+
         //returns 1 if table was dropped
         //returns 0 if user can't drop the table
     }
@@ -83,7 +96,7 @@ public class query {
     private static void select(Matcher select, String username, String password) {
         String fieldNames = select.group(1);
         String tableName = select.group(2);
-        if (select.group(3)!=null){
+        if (select.group(3) != null) {
             String conditions = select.group(3);
         }
 
@@ -91,13 +104,26 @@ public class query {
     }
 
     private static void insert(Matcher insert, String username, String password) {
-        String tableName = insert.group(1);
-        String keys = insert.group(2);
+        String tableName = insert.group(2);
+        String keys = insert.group(3);
+        String[] columnName = keys.split("\\s*,\\s*");
+        List<String> columnNameList = Arrays.asList(columnName);
         // Separate keys into a arraylist
-        String values = insert.group(3);
+        String values = insert.group(4);
+        String[] columnValue = values.split("\\s*,\\s*");
+        List<String> columnValueList = Arrays.asList(columnValue);
         // Separate values into a arraylist
-
+        System.out.println(columnNameList + " " + columnValueList);
         // Link user to actions
+        //returns 1 if changes made in the text file
+        //returns 0 if no changes allowed to make
+        int created = action.insert(username, tableName, columnNameList, columnValueList);
+        if (created == 0) {
+            System.out.println("The table: " + tableName + "cannot be created.");
+        }else{
+            System.out.println("The table: " + tableName + "is created by: " + username);
+        }
+
     }
 
     private static void delete(Matcher delete, String username, String password) {

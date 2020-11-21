@@ -1,0 +1,11 @@
+user
+Players
+name
+varchar(55)
+id
+int
+birth
+date
+address
+varchar(255)
+
