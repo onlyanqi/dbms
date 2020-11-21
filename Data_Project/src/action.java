@@ -127,7 +127,7 @@ public class action {
                             input = bdr.readLine();   //now moving onto columns
                             while(!input.isBlank())                   //now running till we find next record
                             {
-                                String t[]=line.split(" ");    //split to get the column name
+                                String t[]=input.split(" ");    //split to get the column name
                                 temp.add(t[0]);  //Store the column names and order of column names
                                 input=bdr.readLine();   //runs till we encounter the end of block
                             }
