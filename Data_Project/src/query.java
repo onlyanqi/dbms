@@ -57,6 +57,7 @@ public class query {
     }
 
     // Parse the statements deeper, to prepare for the actual operations
+
     private static void create(Matcher createTable, String username) {
         String tableName = createTable.group(2);
         String columns = createTable.group(3);
@@ -71,13 +72,14 @@ public class query {
             dataType.add(columnType[1]);
         }
         System.out.println(columnName + " " + dataType);
+
         // Link user to actions
         int created = action.create(username, tableName, columnName, dataType);
         //if returned 0 then user can't create otherwise print user can create a table
         if (created == 0) {
-            System.out.println("The table: " + tableName + "cannot be created.");
+            System.out.println("The table: " + tableName + " cannot be created.");
         } else {
-            System.out.println("The table: " + tableName + "is created by: " + username);
+            System.out.println("The table: " + tableName + " is created by: " + username);
         }
     }
 
@@ -97,18 +99,25 @@ public class query {
         System.out.println(fieldNamesStringList);
         String tableName = select.group(3);
         System.out.println(tableName);
-        if (select.group(4) != null) {
+//        if (select.group(4) != null) {
             String condition = select.group(5);
             String[] conditionString = condition.split("\\s*=\\s*");
             String conditionName = conditionString[0];
             String conditionValue = conditionString[1];
             System.out.println(conditionName + "\n" + conditionValue);
+//        }
+        // Link user to actions
+        int selected = action.select(username,tableName,fieldNamesStringList,conditionName, conditionValue);
+        if (selected == 0) {
+            System.out.println("The table: " + tableName + " cannot be selected.");
+        }else{
+            System.out.println("Values are selected from table: " + tableName + " by: " + username);
         }
 
-        // Link user to actions
     }
 
     private static void insert(Matcher insert, String username) {
+
         String tableName = insert.group(2);
         String keys = insert.group(3);
         String[] columnName = keys.split("\\s*,\\s*");
@@ -120,6 +129,15 @@ public class query {
         // Separate values into a arraylist
         System.out.println(columnNameList + " " + columnValueList);
         // Link user to actions
+        //returns 1 if changes made in the text file
+        //returns 0 if no changes allowed to make
+        int inserted = action.insert(username, tableName, columnNameList, columnValueList);
+        if (inserted == 0) {
+            System.out.println("The table: " + tableName + " cannot be inserted.");
+        }else{
+            System.out.println("Values are inserted into table: " + tableName + " by: " + username);
+        }
+
     }
 
     private static void delete(Matcher delete, String username) {
@@ -150,5 +168,11 @@ public class query {
         String conditionValue = conditionString[1];
         System.out.println(tableName + "\n" + column +"\n" + value + "\n" + conditionName + "\n" + conditionValue);
         // Link user to actions
+        int updated = action.update(username, tableName, column, value, conditionName, conditionValue);
+        if (updated == 0) {
+            System.out.println("The table: " + tableName + " cannot be updated.");
+        }else{
+            System.out.println("The table: " + tableName + " is updated by: " + username);
+        }
     }
 }

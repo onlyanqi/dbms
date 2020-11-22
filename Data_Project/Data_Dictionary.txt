@@ -1,11 +1,6 @@
 user
-Players
-name
-varchar(55)
-id
-int
-birth
-date
-address
-varchar(255)
+students
+name  varchar(80)
+age  int
+address  varchar(80)
 
