@@ -18,7 +18,6 @@ public class action {
             FileReader fr_ddc = new FileReader(ddc);   //Now that we have a dictionary,  we traverse it to check if no same user has the same table
             BufferedReader br_ddc = new BufferedReader(fr_ddc);
             String ddc_line = br_ddc.readLine();
-            int flag = 1;  //checks if username record should be added to ddc(1) or not(0)
             while (ddc_line != null) {
                 if (ddc_line.equalsIgnoreCase(username)) {
                     ddc_line = br_ddc.readLine();  //checking the table name associated with that user
@@ -136,11 +135,15 @@ public class action {
                                     }
                                 }
 
-                                fw.write(temp.get(i));   //store the column name
+                                System.out.println(temp.get(i));
+                                fw.append(temp.get(i));
+//                                fw.write(temp.get(i));   //store the column name
                                 fw.write(" ");       //a space
                                 if(check==1)
                                 {
-                                    fw.write(values.get(count));    //the value of the column
+                                    System.out.println(values.get(count));
+                                    fw.append(values.get(count));
+//                                    fw.write(values.get(count));    //the value of the column
                                 }
                                 else
                                 {
@@ -157,6 +160,7 @@ public class action {
                     input = bdr.readLine();
                 }//end of while traversing the data dictionary to fill columns
                 bdr.close();
+                fw.close();
             }//end of if
 
             else //if no user linked with tablename
@@ -253,6 +257,9 @@ public class action {
                     }
                     txtline = br_myfile.readLine();  //next line
                 }//now we know which block number we have to change to
+                if(block==0){
+                    return 0;
+                }
                 br_myfile.close();
                 myfilereader.close();
 
@@ -268,13 +275,14 @@ public class action {
                 String tempinput=br.readLine();  //from the actual data text file
                 int checkno=1;//checks the block number
                 List<String> order=new ArrayList<>();
-                int check=-1;
+                int check=0;
+                int flag1 = 0;
 
                 while(tempinput!=null)   //run through entire data text file and copy to new one
                 {
                     if(checkno==block)   //if block number is same
                     {
-                        check=-1;
+                        flag1=0;
                         if(!tempinput.isBlank())
                         {
                             String s[] = tempinput.split(" ");  //get a column name i.e column then value, so s[0]=column
@@ -284,36 +292,46 @@ public class action {
                                 if (s[0].equalsIgnoreCase(column.get(i)))   //see if that column is updated
                                 {
                                     check = i;
+                                    flag1 = 1;
                                     break;
                                 }
                             }
-                            if (check == -1)  //no column found in the block that is to be updated compared to current line
+                            if (flag1==0)  //no column found in the block that is to be updated compared to current line
                             {
+                                System.out.println(tempinput);
                                 fw_temp.write(tempinput);   //no update so write line as it was
                                 fw_temp.write("\n");
                             }
                             else //if update found
                             {
-                                fw_temp.write(column.get(check));   //column name
+                                fw_temp.write(s[0]);   //column name
                                 fw_temp.write(" ");
                                 fw_temp.write(values.get(check));  //enter the new value
                                 fw_temp.write("\n");
                             }
-                        }             //if line was blank
+                        }else{
+                            //if line was blank
+                            fw_temp.write(tempinput);
+                            checkno++;
+                        }
+                        tempinput=br.readLine();
+                    }else {
+                        //if a different block then just copy as it is
+                        if (tempinput.isBlank()) {
+                            checkno++;    //change the block number when new line encountered
+                        }
 
-                        fw_temp.write(tempinput);  //copy the empty line
-
-                    } //if a different block then just copy as it is
-
-                    fw_temp.write(tempinput);
-                    tempinput = br.readLine();
-                    if (tempinput.isBlank())
-                    {
-                        checkno++;    //change the block number when new line encountered
+                        fw_temp.write(tempinput);
+                        fw_temp.write("\n");
+                        tempinput = br.readLine();
                     }
 
                 }//end of while that runs through the entire datatext file
 
+                br.close();
+                fr.close();
+
+                fw_temp.close();
                 myfile.delete();
                 temp.renameTo(new File(tablename + ".txt"));
             } //end of if that tells if user is allowed to make changes
@@ -491,6 +509,9 @@ public class action {
                     }
                     txtline = br_myfile.readLine();  //next line
                 }//now we know which block number we have to change to
+                if(block==0){
+                    return 0;
+                }
                 br_myfile.close();
                 myfilereader.close();
 
@@ -505,8 +526,6 @@ public class action {
                 FileWriter fw_temp = new FileWriter(temp, true);
                 String tempinput=br.readLine();  //from the actual data text file
                 int checkno=1;//checks the block number
-                List<String> order=new ArrayList<>();
-                int check=-1;
 
                 while(tempinput!=null)   //run through entire data text file and copy to new one
                 {
@@ -517,6 +536,7 @@ public class action {
                         if(tempinput.isBlank())
                         {
                             checkno++;   //change of block number
+                            tempinput = br.readLine();
                         }
                     } //if a different block then just copy as it is
                     else {
@@ -524,10 +544,13 @@ public class action {
                         tempinput = br.readLine();
                         if (tempinput.isBlank()) {
                             checkno++;    //change the block number when new line encountered
+                            tempinput = br.readLine();
                         }
                     }
                 }//end of while that runs through the entire datatext file
-
+                fw_temp.close();
+                fr.close();
+                br.close();
                 myfile.delete();   //delete the original text file
                 temp.renameTo(new File(tablename + ".txt"));    //rename the temp file to the tablename
             } //end of if that tells if user is allowed to make changes
