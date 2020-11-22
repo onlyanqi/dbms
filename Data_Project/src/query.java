@@ -87,6 +87,12 @@ public class query {
         String tableName = dropTable.group(2);
         System.out.println(tableName);
         // Link user to actions
+        int dropped = action.drop(username, tableName);
+        if (dropped == 0) {
+            System.out.println("The table: " + tableName + " cannot be dropped.");
+        } else {
+            System.out.println("Dropped table: " + tableName + " by: " + username);
+        }
 
         //returns 1 if table was dropped
         //returns 0 if user can't drop the table
@@ -99,18 +105,20 @@ public class query {
         System.out.println(fieldNamesStringList);
         String tableName = select.group(3);
         System.out.println(tableName);
-//        if (select.group(4) != null) {
+        String conditionName = "";
+        String conditionValue = "";
+        if (select.group(4) != null) {
             String condition = select.group(5);
             String[] conditionString = condition.split("\\s*=\\s*");
-            String conditionName = conditionString[0];
-            String conditionValue = conditionString[1];
+            conditionName = conditionString[0];
+            conditionValue = conditionString[1];
             System.out.println(conditionName + "\n" + conditionValue);
-//        }
+        }
         // Link user to actions
-        int selected = action.select(username,tableName,fieldNamesStringList,conditionName, conditionValue);
+        int selected = action.select(username, tableName, fieldNamesStringList, conditionName, conditionValue);
         if (selected == 0) {
             System.out.println("The table: " + tableName + " cannot be selected.");
-        }else{
+        } else {
             System.out.println("Values are selected from table: " + tableName + " by: " + username);
         }
 
@@ -134,7 +142,7 @@ public class query {
         int inserted = action.insert(username, tableName, columnNameList, columnValueList);
         if (inserted == 0) {
             System.out.println("The table: " + tableName + " cannot be inserted.");
-        }else{
+        } else {
             System.out.println("Values are inserted into table: " + tableName + " by: " + username);
         }
 
@@ -149,6 +157,12 @@ public class query {
         System.out.println(tableName + "\n" + conditionName + "\n" + conditionValue);
 
         // Link user to actions
+        int deleted = action.delete(username, tableName,conditionName,conditionValue);
+        if (deleted == 0) {
+            System.out.println("The table: " + tableName + " cannot be deleted.");
+        } else {
+            System.out.println("Deleted values in table: " + tableName + " by: " + username);
+        }
     }
 
     private static void update(Matcher update, String username) {
@@ -157,7 +171,7 @@ public class query {
         String[] setString = set.split("\\s*,\\s*");
         ArrayList<String> column = new ArrayList<>();
         ArrayList<String> value = new ArrayList<>();
-        for(String s : setString){
+        for (String s : setString) {
             String[] columnValue = s.split("\\s*=\\s*"); // separate by whitespace
             column.add(columnValue[0]);
             value.add(columnValue[1]);
@@ -166,12 +180,12 @@ public class query {
         String[] conditionString = condition.split("\\s*=\\s*");
         String conditionName = conditionString[0];
         String conditionValue = conditionString[1];
-        System.out.println(tableName + "\n" + column +"\n" + value + "\n" + conditionName + "\n" + conditionValue);
+        System.out.println(tableName + "\n" + column + "\n" + value + "\n" + conditionName + "\n" + conditionValue);
         // Link user to actions
         int updated = action.update(username, tableName, column, value, conditionName, conditionValue);
         if (updated == 0) {
             System.out.println("The table: " + tableName + " cannot be updated.");
-        }else{
+        } else {
             System.out.println("The table: " + tableName + " is updated by: " + username);
         }
     }

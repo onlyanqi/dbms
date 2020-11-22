@@ -448,7 +448,7 @@ public class action {
 
 
     //to delete a record in the table
-    public static  int delete(String username, String tablename,List<String> column, List<String> values, String conditionName, String conditionVal) {
+    public static  int delete(String username, String tablename, String conditionName, String conditionVal) {
 
         try {
 

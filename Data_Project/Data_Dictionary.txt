@@ -1,6 +1,0 @@
-user
-students
-name  varchar(80)
-age  int
-address  varchar(80)
-
