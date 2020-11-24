@@ -11,6 +11,8 @@ public class query {
     private static final Pattern INSERT_PATTERN = Pattern.compile("(?i)(INSERT\\sINTO\\s+(\\w+)\\s+\\(([\\s\\S]+)\\)\\s+VALUES\\s+\\(([\\s\\S]+)\\);)");
     private static final Pattern DELETE_PATTERN = Pattern.compile("(?i)(DELETE\\sFROM\\s+(\\w+)\\s+WHERE\\s+([\\s\\S]+);)");
     private static final Pattern UPDATE_PATTERN = Pattern.compile("(?i)(UPDATE\\s(\\w+)\\sSET\\s([\\s\\S]+)\\sWHERE\\s([\\s\\S]+);)");
+    private static final Pattern ALTER_PK_PATTERN = Pattern.compile("(?i)(ALTER\\sTABLE\\s(\\w+)\\sADD\\sPRIMARY\\sKEY\\s\\(([\\s\\S]+)\\);)");
+    private static final Pattern ALTER_FK_PATTERN = Pattern.compile("(?i)(ALTER\\sTABLE\\s(\\w+)\\sADD\\sFOREIGN\\sKEY\\s\\(([\\s\\S]+)\\)\\sREFERENCES\\s(\\w+)\\(([\\s\\S]+)\\);)");
 
     public static void parse(String username) {
         System.out.println("Please enter the SQL queries or type 'exit' to quit");
@@ -27,6 +29,8 @@ public class query {
             Matcher insertSQL = INSERT_PATTERN.matcher(sql);
             Matcher deleteSQL = DELETE_PATTERN.matcher(sql);
             Matcher updateSQL = UPDATE_PATTERN.matcher(sql);
+            Matcher alterPKSQL = ALTER_PK_PATTERN.matcher(sql);
+            Matcher alterFKSQL = ALTER_FK_PATTERN.matcher(sql);
 
             if (createTableSQL.find()) {
                 // To do: write event logs for the user query
@@ -47,6 +51,10 @@ public class query {
             } else if (updateSQL.find()) {
                 System.out.println("update data: " + sql);
                 update(updateSQL, username);
+            } else if (alterPKSQL.find()) {
+                alterPK(alterPKSQL, username);
+            } else if (alterFKSQL.find()) {
+                alterFK(alterFKSQL, username);
             } else {
                 // Nothing matches with Regex patterns
                 System.out.println("Please make sure the input is in standard SQL format.\n" + sql + " is not valid.");
@@ -88,14 +96,13 @@ public class query {
         System.out.println(tableName);
         // Link user to actions
         int dropped = action.drop(username, tableName);
+        //returns 1 if table was dropped
+        //returns 0 if user can't drop the table
         if (dropped == 0) {
             System.out.println("The table: " + tableName + " cannot be dropped.");
         } else {
             System.out.println("Dropped table: " + tableName + " by: " + username);
         }
-
-        //returns 1 if table was dropped
-        //returns 0 if user can't drop the table
     }
 
     private static void select(Matcher select, String username) {
@@ -157,7 +164,7 @@ public class query {
         System.out.println(tableName + "\n" + conditionName + "\n" + conditionValue);
 
         // Link user to actions
-        int deleted = action.delete(username, tableName,conditionName,conditionValue);
+        int deleted = action.delete(username, tableName, conditionName, conditionValue);
         if (deleted == 0) {
             System.out.println("The table: " + tableName + " cannot be deleted.");
         } else {
@@ -188,5 +195,34 @@ public class query {
         } else {
             System.out.println("The table: " + tableName + " is updated by: " + username);
         }
+    }
+
+    private static void alterPK(Matcher alterPKSQL, String username) {
+        String tableName = alterPKSQL.group(2);
+        String primaryKey = alterPKSQL.group(3);
+
+        int alterPK = 0;
+//                action.alterPK(username, tableName, primaryKey);
+        if (alterPK == 0) {
+            System.out.println("Primary key: " + primaryKey + " cannot be added to table: " + tableName);
+        } else {
+            System.out.println("Primary key: " + primaryKey + " is added to table: " + tableName + " by: " + username);
+        }
+    }
+
+    private static void alterFK(Matcher alterFKSQL, String username) {
+        String tableName1 = alterFKSQL.group(2);
+        String foreignKey = alterFKSQL.group(3);
+        String tableName2 = alterFKSQL.group(4);
+        String primaryKey = alterFKSQL.group(5);
+
+        int alterFK = 0;
+//                action.alterFK(username, tableName1, foreignKey, tableName2, primaryKey);
+        if (alterFK == 0) {
+            System.out.println("Foreign key: " + foreignKey + " cannot be added between table: " + tableName1 + " and table: " + tableName2);
+        } else {
+            System.out.println("Foreign key: " + foreignKey + " is added between table: " + tableName1 + "and table: " + tableName2 + " by: " + username);
+        }
+
     }
 }

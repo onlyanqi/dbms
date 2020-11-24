@@ -366,71 +366,91 @@ public class action {
 
         try {
 
-                File myfile = new File(tablename + ".txt");
-                FileReader myfilereader = new FileReader(myfile);
-                BufferedReader br_myfile = new BufferedReader(myfilereader);
-                String txtline=br_myfile.readLine();
-                int count=0;  //count for no of blocks of record
-                int block=0;
-                //first get the record number block where we have to make the change
-
-                while(txtline!=null)
+            File myfile = new File(tablename + ".txt");  //process the table name file
+            if(!myfile.exists())
+            {
+                System.out.println("Table doesn't exist!");
+                return 0;
+            }
+            FileReader myfilereader = new FileReader(myfile);
+            BufferedReader br_myfile = new BufferedReader(myfilereader);
+            String txtline=br_myfile.readLine();
+            int count=0;  //count for no of blocks of record
+            int block=0;
+            int flag=0; //tells difference between select* or condition
+            int flag1=0; //tells us that if the condition passed with the value is even correct or not
+            if(!conditionName.isEmpty() && !conditionVal.isEmpty())   //if its not empty then we continue with normal processing
+            {
+                flag=1;
+                while (txtline != null)    //we look for the matching block
                 {
-                    if(!txtline.isBlank())
+                    if (!txtline.isBlank())
                     {
                         String s[] = txtline.split(" ");
-                        if (s[0].equalsIgnoreCase(conditionName)) {
+                        if (s[0].equalsIgnoreCase(conditionName))    //column and then the value
+                        {
 
                             if (s[1].equalsIgnoreCase(conditionVal)) {
                                 count++;
                                 block = count;
-                                break;
+                                flag1=1;
+                                break;  //as soon as we get the block number
                             }
                         }
 
-                    }
-                    else {
+                    } else
+                    {
                         count++;  //line is blank so count one block
                     }
                     txtline = br_myfile.readLine();  //next line
                 }//now we know which block number we have to read
                 br_myfile.close();
                 myfilereader.close();
+            }
 
 
-                FileReader fr=new FileReader(myfile);
-                BufferedReader br=new BufferedReader(fr);  //the actual data text file
-                String tempinput=br.readLine();  //from the actual data text file
-                int checkno=1;//checks the block number
-                List<String> order=new ArrayList<>();
 
-                while(tempinput!=null)   //run through entire text file
+            FileReader fr=new FileReader(myfile);
+            BufferedReader br=new BufferedReader(fr);  //the actual data text file
+            String tempinput=br.readLine();  //from the actual data text file
+            int checkno=1;//checks the block number
+
+
+            while(tempinput!=null)   //run through entire text file
+            {
+                if (flag == 0)
                 {
-                    if(checkno==block)   //if block number is same
+                    System.out.println(tempinput);
+                    tempinput = br.readLine();
+                } else if(flag1==1)
+                {
+
+                    if (checkno == block)   //if block number is same
                     {
-                        if(!tempinput.isBlank())
+                        if (!tempinput.isBlank())   //if it's not blank we process
                         {
-                            String s[] = tempinput.split(" ");  //get a column name i.e column then value, so s[0]=column
+                            String s[] = tempinput.split(" ");  //get a column name i.e column then value, so s[0]=column, s[1] is the value
 
                             for (int i = 0; i < column.size(); i++)  //match current column to see if it needs an updated value
                             {
-                                if (s[0].equalsIgnoreCase(column.get(i)))   //see if that column is updated
+                                if (s[0].equalsIgnoreCase(column.get(i)))   //see if that column is the one we needed
                                 {
                                     System.out.print(tempinput);    //print the matched line
                                 }
                             }
                         }  //if line was blank
+                        checkno++; //change of block
 
-                    } //if a different block then just copy as it is
+                    } //if a different block we just continue processing
 
                     tempinput = br.readLine();
-                    if (tempinput.isBlank())
-                    {
-                        checkno++;    //change of block if new line encountered
-                        tempinput=br.readLine();
-                    }
-                }//end of while that runs through the entire datatext file
+                }
+                else
+                {
+                    return 0;   //wrong condition or matching value
+                }
 
+            }//end of while that runs through the entire datatext file
 
         } catch(FileNotFoundException e){
             e.printStackTrace();
@@ -447,9 +467,11 @@ public class action {
 
 
 
+
+
+
     //to delete a record in the table
     public static  int delete(String username, String tablename, String conditionName, String conditionVal) {
-
         try {
 
             File ddc = new File("Data_Dictionary.txt");
@@ -509,8 +531,10 @@ public class action {
                     }
                     txtline = br_myfile.readLine();  //next line
                 }//now we know which block number we have to change to
+
+
                 if(block==0){
-                    return 0;
+                    return 0;    //if no block matched
                 }
                 br_myfile.close();
                 myfilereader.close();
@@ -526,33 +550,37 @@ public class action {
                 FileWriter fw_temp = new FileWriter(temp, true);
                 String tempinput=br.readLine();  //from the actual data text file
                 int checkno=1;//checks the block number
+                List<String> order=new ArrayList<>();
+
 
                 while(tempinput!=null)   //run through entire data text file and copy to new one
                 {
                     if(checkno==block)   //if block number is same
                     {
 
-                        tempinput=br.readLine();
-                        if(tempinput.isBlank())
-                        {
-                            checkno++;   //change of block number
-                            tempinput = br.readLine();
-                        }
-                    } //if a different block then just copy as it is
-                    else {
+                    }//End of if, if it was the same block
+                    else
+                    {
                         fw_temp.write(tempinput);
-                        tempinput = br.readLine();
-                        if (tempinput.isBlank()) {
-                            checkno++;    //change the block number when new line encountered
-                            tempinput = br.readLine();
-                        }
+                        fw_temp.write("\n");
                     }
+
+                    if(tempinput.isBlank())   //new block
+                    {
+                        checkno++;
+
+                    }
+                    tempinput=br.readLine();
+
                 }//end of while that runs through the entire datatext file
+
                 fw_temp.close();
-                fr.close();
                 br.close();
-                myfile.delete();   //delete the original text file
-                temp.renameTo(new File(tablename + ".txt"));    //rename the temp file to the tablename
+                fr.close();
+
+                fw_temp.close();
+                myfile.delete();
+                temp.renameTo(new File(tablename + ".txt"));
             } //end of if that tells if user is allowed to make changes
             else
             {
@@ -563,54 +591,63 @@ public class action {
         } catch(IOException e){
             e.printStackTrace();
         }
+
+
         return 1;
+
 
     }
 
 
 
+
     //to drop the table
     public static int drop(String username, String tablename) {
-        int flag = 0;   //check if user can delete or not
+        int flag=0;
         try {
 
             File file = new File("Data_Dictionary.txt");  //assuming data dictionary is already there
             FileReader fr = new FileReader(file);
             BufferedReader br = new BufferedReader(fr);
-            PrintWriter pw = new PrintWriter(file);   //it will create a new file/overwrite file of the same name
-
+            File temp=new File("temp.txt");
+            if(temp.createNewFile())
+            {
+                //creates a new file
+            }
+            FileWriter fw=new FileWriter(temp,true);
             String line = br.readLine();
-            while (line != null) {
-                if (line.equalsIgnoreCase(username)) {
+            while (line != null)
+            {
+                if (line.equalsIgnoreCase(username))
+                {
                     line = br.readLine();
                     if (line.equalsIgnoreCase(tablename))  //user can delete the table now
                     {
-                        while (line.isBlank())    //blank line means end of one record
+                        flag=1;
+                        while(line.isBlank())
                         {
-                            line = br.readLine();   //process till we get to new record
-                        }
-                        flag = 1;  //confirms table was deleted
-                        File table = new File(tablename + ".txt");
-                        table.delete();    //deletes the file associated with table data
-
+                            line=br.readLine();
+                        }//end of record
                     }
 
-                    pw.write(username);  //if not the same tablename but same username,first write the username
-                    pw.write("\n");
-                    pw.write(line);   //pointer at tablename already
-                    pw.write("\n");
-                    continue;    //no need to process next one
+                    fw.write(username);  //if not the same tablename but same username,first write the username
+                    fw.write("\n");
+                    fw.write(line);   //pointer at tablename already. A different tablename
+                    fw.write("\n");
                 }
-
-                pw.write(line);   //copy the none matched line
-                pw.write("\n");
+                else   //if the username didn't match
+                {
+                    fw.write(line);   //copy the none matched line
+                    fw.write("\n");
+                }
                 line = br.readLine();
             }
 
             File fin=new File(tablename+".txt");
-            fin.delete();   //delete the table text file too
-
-            pw.close();
+            fin.delete();   //delete the table text file that contains the data
+            file.delete();  //delete old data dictionary
+            temp.renameTo(new File("Data_Dictionary.txt"));   //rename temp file to Data Dictionary
+            fw.close();
             br.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
