@@ -1,3 +1,4 @@
+import javax.crypto.Cipher;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -135,15 +136,12 @@ public class action {
                                     }
                                 }
 
-                                System.out.println(temp.get(i));
+
                                 fw.append(temp.get(i));
-//                                fw.write(temp.get(i));   //store the column name
                                 fw.write(" ");       //a space
                                 if(check==1)
                                 {
-                                    System.out.println(values.get(count));
                                     fw.append(values.get(count));
-//                                    fw.write(values.get(count));    //the value of the column
                                 }
                                 else
                                 {
@@ -377,14 +375,16 @@ public class action {
             String txtline=br_myfile.readLine();
             int count=0;  //count for no of blocks of record
             int block=0;
-            int flag=0; //tells difference between select* or condition
-            int flag1=0; //tells us that if the condition passed with the value is even correct or not
-            if(!conditionName.isEmpty() && !conditionVal.isEmpty())   //if its not empty then we continue with normal processing
+            int flag=0; //0 when no columns
+            int flag1=0; //0 when no conditions
+
+            //select columns from tablename where=
+            if(!conditionName.equalsIgnoreCase("") && !conditionVal.equalsIgnoreCase(""))   //Checking if both conditions are passed
             {
-                flag=1;
+                //if both the values are passed we check for block number
                 while (txtline != null)    //we look for the matching block
                 {
-                    if (!txtline.isBlank())
+                    if (!txtline.isBlank())    //if line isn't blank we match for conditions
                     {
                         String s[] = txtline.split(" ");
                         if (s[0].equalsIgnoreCase(conditionName))    //column and then the value
@@ -393,20 +393,42 @@ public class action {
                             if (s[1].equalsIgnoreCase(conditionVal)) {
                                 count++;
                                 block = count;
-                                flag1=1;
+                                flag1 = 1;   //we got the correct conditions
                                 break;  //as soon as we get the block number
                             }
                         }
 
-                    } else
-                    {
+                    } else {
                         count++;  //line is blank so count one block
                     }
-                    txtline = br_myfile.readLine();  //next line
+                    txtline = br_myfile.readLine();  //next line to keep the loop running
+                    flag1 = -1;   //wrong conditions. Would only continue if it didn't break
                 }//now we know which block number we have to read
-                br_myfile.close();
-                myfilereader.close();
+            }//end of if that checks when conditions aren't empty
+
+
+            //checks for columns
+            if(column.get(0).equalsIgnoreCase("*"))
+            {
+                flag=0;    //print everything where conditions matches
             }
+            else
+            {
+                flag=1;  //specific columns
+
+            }
+
+            br_myfile.close();
+            myfilereader.close();
+            //but if conditions are empty
+            //select* from tablename;  //empty conditions
+
+            if(flag1==-1)  //wrong conditions passed
+            {
+                System.out.println("No valid condition passed!");
+                return 0;   //no conditon or column matching
+            }
+
 
 
 
@@ -416,41 +438,113 @@ public class action {
             int checkno=1;//checks the block number
 
 
-            while(tempinput!=null)   //run through entire text file
+            if(flag==0 && flag1==0) //select* from tablename;  no conditions, print all
             {
-                if (flag == 0)
+                while(tempinput!=null)
                 {
                     System.out.println(tempinput);
-                    tempinput = br.readLine();
-                } else if(flag1==1)
-                {
+                    tempinput=br.readLine();
+                }
+                br.close();
+                return 1;
+            }
 
-                    if (checkno == block)   //if block number is same
+
+
+
+
+            int block_check=1; //check the block number
+            if(flag==0 && flag1==1) //select* from tablename where... ; print but the specified block of record/row
+            {
+                while (tempinput!=null)
+                {
+                    if(block==block_check)
                     {
-                        if (!tempinput.isBlank())   //if it's not blank we process
+                        System.out.println(tempinput);
+                        tempinput=br.readLine();
+                        if(tempinput.isEmpty())
                         {
-                            String s[] = tempinput.split(" ");  //get a column name i.e column then value, so s[0]=column, s[1] is the value
-
-                            for (int i = 0; i < column.size(); i++)  //match current column to see if it needs an updated value
-                            {
-                                if (s[0].equalsIgnoreCase(column.get(i)))   //see if that column is the one we needed
-                                {
-                                    System.out.print(tempinput);    //print the matched line
-                                }
-                            }
-                        }  //if line was blank
-                        checkno++; //change of block
-
-                    } //if a different block we just continue processing
-
-                    tempinput = br.readLine();
+                            block_check++;
+                            tempinput=br.readLine();
+                        }
+                    }
+                    else{
+                        tempinput=br.readLine();
+                        if(tempinput.isEmpty())
+                        {
+                            block_check++;
+                            tempinput=br.readLine();  //we don't print the empty line
+                        }
+                    }
                 }
-                else
+
+                br.close();
+                return 1;
+            }
+
+
+
+
+            if(flag==1 && flag1==1)  // select columns from tablename where... ;  both the conditions and specific columns
+            {
+
+                while (tempinput != null)
                 {
-                    return 0;   //wrong condition or matching value
-                }
+                    if (block == block_check)   //same block
+                    {
+                        String s[] = tempinput.split(" ");   //get the column name and its value
+                        for (int i = 0; i < column.size(); i++)
+                        {
+                            if (column.get(i).equalsIgnoreCase(s[0]))     //match the column name
+                            {
+                                System.out.println(s[1]);  //print the value
+                            }
+                        }
+                        tempinput = br.readLine();
+                        if (tempinput.isEmpty())
+                        {
+                            tempinput = br.readLine();
+                            block_check++;
+                            return 1;
+                        }// end of same block if
 
-            }//end of while that runs through the entire datatext file
+                    } else //if different block
+                    {
+                        tempinput = br.readLine();
+                        if (tempinput.isEmpty())
+                        {
+                            tempinput = br.readLine();
+                            block_check++;
+                        }
+                    }
+                }
+            }
+
+            if(flag==0 && flag1==1) //select columns from tablename; Here columns are there but no tablename
+            {
+                while(tempinput!=null)
+                {
+                    String s[]=tempinput.split(" ");
+                    for(int i=0;i< column.size();i++)
+                    {
+                        if(column.get(i).equalsIgnoreCase(s[0]))
+                        {
+                            System.out.println(s[1]);  //print the value whenever column matches
+                        }
+                    }
+                    tempinput=br.readLine();
+                    if(tempinput.isEmpty())
+                    {
+                        tempinput=br.readLine(); //no need to process empty line
+                    }
+                }
+                br.close();
+                return 1;
+            }
+
+
+
+
 
         } catch(FileNotFoundException e){
             e.printStackTrace();
@@ -470,8 +564,178 @@ public class action {
 
 
 
+
+    //Add the primary key
+    public static int alter_primary(String username, String tablename, String column)
+    {
+        try {
+            File Dictionary=new File("Data_Dictionary.txt");
+            FileReader Dicitonary_fr=new FileReader(Dictionary);
+            BufferedReader Dictionary_br=new BufferedReader(Dicitonary_fr);
+            String line=Dictionary_br.readLine();
+            int flag=0;
+            int flag1=0;
+            int columncheck=0;
+            while (line!=null)
+            {
+                if(line.equalsIgnoreCase(username))  //if same username
+                {
+                    line=Dictionary_br.readLine();
+                    if(line.equalsIgnoreCase(tablename))  //if the same tablename too, the user can make changes
+                    {
+                        flag=1;
+                        line=Dictionary_br.readLine();
+                        while(!line.isBlank())  //now loop over the lines of columns
+                        {
+                            String s[] = line.split(" ");    //check if primary key is the column we're checking
+                            if(column.equalsIgnoreCase(s[0]))   //checks if the column is there or not in the table
+                            {
+                                columncheck=1;   //column exists in table
+                                if (!s[3].isBlank())    //if matched, we now look if pk is set
+                                {
+                                    if (s[3].equalsIgnoreCase("pk"))
+                                    {
+                                        System.out.println("Key already Set");
+                                        return 0;
+                                    } else
+                                    {
+                                        line = Dictionary_br.readLine();  //if no primary key in this set of column move ahead
+                                        flag1=1;
+                                    }
+                                }
+
+                            }
+                        }
+                    }
+                }
+
+                //if username didn't match continue processing loop
+                line= Dictionary_br.readLine();
+            }//end of while for Data Dictionary
+
+            Dictionary_br.close();
+            Dicitonary_fr.close();
+
+            if(flag==0)
+            {
+                System.out.println("Lack of permission!");
+                return 0;
+
+            }
+
+            if(columncheck==0)
+            {
+                System.out.println("Column not present in the table!");
+                return 0;
+            }
+
+
+            if(flag==1 && flag1==1 && columncheck==1) //no primary key set and user can make change and also column exists
+            {
+                File table = new File(tablename + ".txt");
+                FileReader table_fr = new FileReader(table);
+                BufferedReader table_br=new BufferedReader(table_fr);
+                String input= table_br.readLine();
+                List<String> values1=new ArrayList<>();  //stores all values in column to match for duplicate
+                List<String> values2=new ArrayList<>();
+                while(input!=null)
+                {
+                    if(!input.isEmpty())
+                    {
+                        String s[]=input.split(" ");
+                        if(column.equalsIgnoreCase(s[0]))  //column matched
+                        {
+                            values1.add(s[1]);
+                            values2.add(s[1]);
+                        }
+                    }
+                    input=table_br.readLine();
+                }
+
+                //Now check if any duplicate value in column or not
+                for(String temp:values1)
+                {
+                    if(values2.contains(temp))
+                    {
+                        System.out.println("Duplicate value exists in column. Cannot be a primary key!");
+                        return 0;
+                    }
+                }
+
+                //No duplicate value exists. Add this column as primary key to Data Dictionary
+                FileReader fr = new FileReader(Dictionary);
+                BufferedReader br = new BufferedReader(fr);
+                File temp=new File("temp.txt");
+                if(temp.createNewFile())
+                {
+                    //creates a new file
+                }
+                FileWriter fw=new FileWriter(temp,true);
+                String tempinput = br.readLine();
+                while (tempinput != null)
+                {
+                    if (tempinput.equalsIgnoreCase(username))
+                    {
+                        fw.write(tempinput);
+                        fw.write("\n");
+                        tempinput = br.readLine();
+                        if (tempinput.equalsIgnoreCase(tablename))  //user can delete the table now
+                        {
+                            fw.write(tempinput);
+                            fw.write("\n");
+                            tempinput=br.readLine();
+                            while(!tempinput.isBlank())
+                            {
+                                String s[]=tempinput.split(" ");
+                                if(s[0].equalsIgnoreCase(column))
+                                {
+                                    fw.write(s[0]+" "+s[1]+" "+"PK");  //add the Primary Key marker
+                                    fw.write("\n");
+                                }
+                                else {
+                                    fw.write(tempinput);
+                                    fw.write("\n");
+                                }
+                                tempinput=br.readLine();
+                            }
+                        } //if tablename didn't match
+                        fw.write(tempinput);
+                    }
+                    else   //if the username didn't match
+                    {
+                        fw.write(tempinput);   //copy the none matched line
+                        fw.write("\n");
+                    }
+                    tempinput= br.readLine();
+                }
+
+                br.close();
+                fr.close();
+                fw.close();
+                Dictionary.delete();  //delete old data dictionary
+                temp.renameTo(new File("Data_Dictionary.txt"));   //rename temp file to Data Dictionary
+
+            }
+
+        }catch (FileNotFoundException e)
+        {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return 1;
+    }
+
+
+
+
+
+
+
+
     //to delete a record in the table
-    public static  int delete(String username, String tablename, String conditionName, String conditionVal) {
+    public static int delete(String username, String tablename, String conditionName, String conditionVal) {
         try {
 
             File ddc = new File("Data_Dictionary.txt");
@@ -657,4 +921,5 @@ public class action {
 
         return flag;
     }
+
 }
