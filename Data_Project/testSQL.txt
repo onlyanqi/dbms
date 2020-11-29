@@ -1,0 +1,24 @@
+create table teacher (tid int, name varchar(80), age int, address varchar(80));
+insert into teacher (tid, name, age, address) values (1, tea1, 18, halifax);
+update teacher set name=anqi where name = stu1;
+Select * from teacher where name = anqi;
+Select name, age from teacher where address = halifax;
+delete from teacher where name = anqi;
+Alter table teacher add primary key (tid);
+Alter table student add foreign key (teacher) references teacher (tid);
+
+
+
+Relationship.txt
+table1 columnName1 FK
+table2 columnName2 PK
+
+table2 columnName2 FK
+table3 columnName3 PK
+
+Alter add FK child key reference parent key.
+
+1.if column exist in child Data dictionary * not already a FK or PK *
+2.parent Data dictionary check parent key is PK *
+3.child < parent, assign FK
+4.Relationship.txt

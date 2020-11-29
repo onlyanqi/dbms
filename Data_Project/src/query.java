@@ -269,8 +269,7 @@ public class query {
         String tableName2 = alterFKSQL.group(4);
         String primaryKey = alterFKSQL.group(5);
         long start = System.nanoTime();  // Get the start time
-        int alterFK = 0;
-//              action.alterFK(username, tableName1, foreignKey, tableName2, primaryKey);
+        int alterFK = action.alter_foreign(username, tableName1, foreignKey, tableName2, primaryKey);
         long end = System.nanoTime();  // Get the end time
         long executionTime = end - start;  // Calculate the execution time
         fw1.append("[Execution time] time used for Alter Foreign Key is ").append(String.valueOf(executionTime)).append(" nanoseconds\n");
