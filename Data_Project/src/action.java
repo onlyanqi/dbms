@@ -777,12 +777,12 @@ public class action {
                                 if (line.isBlank()) {
                                     //end of the block. If no column matches even though the username and table matched
                                     System.out.println("The column entered is not exist in table 1");
-                                    break;  //as there can only be one user associated with the table
+                                    return 0;  //as there can only be one user associated with the table
                                 }
                             }
                         }//end of while that runs matching columns after username and tablename was matched
                     }//table name1 didn't match
-                    else if (line.equalsIgnoreCase(tableName2)) {
+                    if (line.equalsIgnoreCase(tableName2)) {
                         line = dataBR.readLine();
                         if (!line.isBlank()) {
                             String s[] = line.split(" ");
@@ -790,12 +790,11 @@ public class action {
                             {
                                 if (s.length > 2)  //there has to be another value in array
                                 {
-                                        if (s[2].equalsIgnoreCase("pk")) // key2 is PK in table2
-                                        {
-                                            flag2 = 1;
-                                            break;
-                                        }
-                                }else {
+                                    if (s[2].equalsIgnoreCase("pk")) // key2 is PK in table2
+                                    {
+                                        flag2 = 1;
+                                    }
+                                } else {
                                     System.out.println(key2 + " is not set as a Primary Key in " + tableName2);
                                     return 0;
                                 }
@@ -805,7 +804,7 @@ public class action {
                                 if (line.isBlank()) {
                                     //end of the block. If no column matches even though the username and table matched
                                     System.out.println("The column entered is not exist in table 2");
-                                    break;  //as there can only be one user associated with the table
+                                    return 0;  //as there can only be one user associated with the table
                                 }
                             }
                         }
@@ -835,36 +834,26 @@ public class action {
 
                 while (line1 != null) {
                     if (!line1.isBlank()) {
-                        String s[] = line2.split(" ");
+                        String s[] = line1.split(" ");
                         if (key1.equalsIgnoreCase(s[0]))  //column matched, fetch corresponding value
                         {
-                            values1.add(s[1]); // add the value in List 1
-                        } else {
-                            line1 = dataBR.readLine();
-                            if (line1.isBlank()) {
-                                //end of the block. If no column matches even though the username and table matched
-                                System.out.println("The column entered is not exist in table 1");
-                                break;  //as there can only be one user associated with the table
-                            }
+                            values1.add(s[1]);
                         }
                     }
+                    line1 = table1_br.readLine();
                 }
+
                 while (line2 != null) {
                     if (!line2.isBlank()) {
                         String s[] = line2.split(" ");
                         if (key2.equalsIgnoreCase(s[0]))  //column matched, fetch corresponding value
                         {
-                            values2.add(s[1]); // add the value in List 1
-                        } else {
-                            line2 = dataBR.readLine();
-                            if (line2.isBlank()) {
-                                //end of the block. If no column matches even though the username and table matched
-                                System.out.println("The column entered is not exist in table 2");
-                                break;  //as there can only be one user associated with the table
-                            }
+                            values2.add(s[1]);
                         }
                     }
+                    line2 = table2_br.readLine();
                 }
+
                 if (values2.containsAll(values1)) {
                     flag3 = 1;
                 }
@@ -875,7 +864,8 @@ public class action {
                 table2_fr.close();
             }
 
-            if(flag3==0) {
+            if (flag3 == 0) {
+                System.out.println("Values in child table cannot be more than those in parent table");
                 return 0;
             }
 
@@ -903,6 +893,7 @@ public class action {
                                 String s[] = tempinput.split(" ");  //get the column names,datatype etc
                                 if (s[0].equalsIgnoreCase(key1)) {
                                     fw.write(s[0]);  //write the column name
+                                    fw.write(" ");
                                     fw.write(s[1]);  //the datatype
                                     fw.write(" FK");//add the Foreign Key marker at the end
                                     fw.write("\n"); //new line

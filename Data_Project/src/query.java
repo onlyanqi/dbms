@@ -13,14 +13,14 @@ public class query {
     private static final Pattern DELETE_PATTERN = Pattern.compile("(?i)(DELETE\\sFROM\\s+(\\w+)\\s+WHERE\\s+([\\s\\S]+);)");
     private static final Pattern UPDATE_PATTERN = Pattern.compile("(?i)(UPDATE\\s(\\w+)\\sSET\\s([\\s\\S]+)\\sWHERE\\s([\\s\\S]+);)");
     private static final Pattern ALTER_PK_PATTERN = Pattern.compile("(?i)(ALTER\\sTABLE\\s(\\w+)\\sADD\\sPRIMARY\\sKEY\\s\\(([\\s\\S]+)\\);)");
-    private static final Pattern ALTER_FK_PATTERN = Pattern.compile("(?i)(ALTER\\sTABLE\\s(\\w+)\\sADD\\sFOREIGN\\sKEY\\s\\(([\\s\\S]+)\\)\\sREFERENCES\\s(\\w+)\\(([\\s\\S]+)\\);)");
+    private static final Pattern ALTER_FK_PATTERN = Pattern.compile("(?i)(ALTER\\sTABLE\\s(\\w+)\\sADD\\sFOREIGN\\sKEY\\s\\(([\\s\\S]+)\\)\\sREFERENCES\\s(\\w+)\\s\\(([\\s\\S]+)\\);)");
 
     public static void parse(String username) throws IOException {
         System.out.println("Please enter the SQL queries or type 'exit' to quit");
         Scanner sc = new Scanner(System.in);
         String sql;
-        File file = new File(username + "_Event_Logs.txt"); //default event log text file
-        File file1 = new File(username + "_General_Logs.txt");  //default general log text file
+        File file = new File("Event_Logs.txt"); //default event log text file
+        File file1 = new File("General_Logs.txt");  //default general log text file
         if (file.createNewFile())   //if no file exists, we create one
         {
             System.out.println("New Event Logs created!");
@@ -45,30 +45,30 @@ public class query {
             Matcher alterFKSQL = ALTER_FK_PATTERN.matcher(sql);
 
             if (createTableSQL.find()) {
-                fw.append("[User query] ").append(sql).append("\n");
+                fw.append("[User query][").append(username).append("] ").append(sql).append("\n");
                 System.out.println("create a table: " + sql);
                 create(createTableSQL, username, fw, fw1);
             } else if (dropTableSQL.find()) {
-                fw.append("[User query] ").append(sql).append("\n");
+                fw.append("[User query][").append(username).append("] ").append(sql).append("\n");
                 System.out.println("drop a table: " + sql);
                 drop(dropTableSQL, username, fw, fw1);
             } else if (selectSQL.find()) {
-                fw.append("[User query] ").append(sql).append("\n");
+                fw.append("[User query][").append(username).append("] ").append(sql).append("\n");
                 select(selectSQL, username, fw, fw1);
             } else if (insertSQL.find()) {
-                fw.append("[User query] ").append(sql).append("\n");
+                fw.append("[User query][").append(username).append("] ").append(sql).append("\n");
                 insert(insertSQL, username, fw, fw1);
             } else if (deleteSQL.find()) {
-                fw.append("[User query] ").append(sql).append("\n");
+                fw.append("[User query][").append(username).append("] ").append(sql).append("\n");
                 delete(deleteSQL, username, fw, fw1);
             } else if (updateSQL.find()) {
-                fw.append("[User query] ").append(sql).append("\n");
+                fw.append("[User query][").append(username).append("] ").append(sql).append("\n");
                 update(updateSQL, username, fw, fw1);
             } else if (alterPKSQL.find()) {
-                fw.append("[User query] ").append(sql).append("\n");
+                fw.append("[User query][").append(username).append("] ").append(sql).append("\n");
                 alterPK(alterPKSQL, username, fw, fw1);
             } else if (alterFKSQL.find()) {
-                fw.append("[User query] ").append(sql).append("\n");
+                fw.append("[User query][").append(username).append("] ").append(sql).append("\n");
                 alterFK(alterFKSQL, username, fw, fw1);
             } else {
                 // Nothing matches with Regex patterns
@@ -97,18 +97,18 @@ public class query {
             dataType.add(columnType[1]);
         }
         System.out.println(columnName + " " + dataType);
-        long start = System.nanoTime();  // Get the start time
+        long start = System.nanoTime();  // Get the start Time
         // Link user to actions
         int created = action.create(username, tableName, columnName, dataType);
-        long end = System.nanoTime();  // Get the end time
-        long executionTime = end - start;  // Calculate the execution time
-        fw1.append("[Execution time] time used for CREATE is ").append(String.valueOf(executionTime)).append(" nanoseconds \n");
+        long end = System.nanoTime();  // Get the end Time
+        long executionTime = end - start;  // Calculate the execution Time
+        fw1.append("[Execution Time][").append(username).append("] Time used for CREATE is ").append(String.valueOf(executionTime)).append(" nanoseconds \n");
         //if returned 0 then user can't create otherwise print user can create a table
         if (created == 0) {
-            fw.append("[Error] Unable to create the table: ").append(tableName).append("\n");
+            fw.append("[Error][").append(username).append("] Unable to create the table: ").append(tableName).append("\n");
             System.out.println("The table: " + tableName + " cannot be created.");
         } else {
-            fw.append("[Change] A new table: ").append(tableName).append(" is created").append("\n");
+            fw.append("[Change][").append(username).append("] A new table: ").append(tableName).append(" is created").append("\n");
             System.out.println("The table: " + tableName + " is created by: " + username);
         }
     }
@@ -116,19 +116,19 @@ public class query {
     private static void drop(Matcher dropTable, String username, FileWriter fw, FileWriter fw1) throws IOException {
         String tableName = dropTable.group(2);
         System.out.println(tableName);
-        long start = System.nanoTime();  // Get the start time
+        long start = System.nanoTime();  // Get the start Time
         // Link user to actions
         int dropped = action.drop(username, tableName);
-        long end = System.nanoTime();  // Get the end time
-        long executionTime = end - start;  // Calculate the execution time
-        fw1.append("[Execution time] time used for DROP is ").append(String.valueOf(executionTime)).append(" nanoseconds\n");
+        long end = System.nanoTime();  // Get the end Time
+        long executionTime = end - start;  // Calculate the execution Time
+        fw1.append("[Execution Time][").append(username).append("] Time used for DROP is ").append(String.valueOf(executionTime)).append(" nanoseconds\n");
         //returns 1 if table was dropped
         //returns 0 if user can't drop the table
         if (dropped == 0) {
-            fw.append("[Error] Unable to dropped the table: ").append(tableName).append("\n");
+            fw.append("[Error][").append(username).append("] Unable to dropped the table: ").append(tableName).append("\n");
             System.out.println("The table: " + tableName + " cannot be dropped.");
         } else {
-            fw.append("[Change] Dropped a table: ").append(tableName).append("\n");
+            fw.append("[Change][").append(username).append("] Dropped a table: ").append(tableName).append("\n");
             System.out.println("Dropped a table: " + tableName + " by: " + username);
         }
     }
@@ -148,17 +148,17 @@ public class query {
             conditionValue = conditionString[1];
             System.out.println(conditionName + " " + conditionValue);
         }
-        long start = System.nanoTime();  // Get the start time
+        long start = System.nanoTime();  // Get the start Time
         // Link user to actions
         int selected = action.select(username, tableName, fieldNamesStringList, conditionName, conditionValue);
-        long end = System.nanoTime();  // Get the end time
-        long executionTime = end - start;  // Calculate the execution time
-        fw1.append("[Execution time] time used for SELECT is ").append(String.valueOf(executionTime)).append(" nanoseconds\n");
+        long end = System.nanoTime();  // Get the end Time
+        long executionTime = end - start;  // Calculate the execution Time
+        fw1.append("[Execution Time][").append(username).append("] Time used for DROP is ").append(String.valueOf(executionTime)).append(" nanoseconds\n");
         if (selected == 0) {
-            fw.append("[Error] Unable to select values from table: ").append(tableName).append("\n");
+            fw.append("[Error][").append(username).append("] Unable to select values from table: ").append(tableName).append("\n");
             System.out.println("The table: " + tableName + " cannot be selected.");
         } else {
-            fw.append("[Change] Values are selected from table: ").append(tableName).append("\n");
+            fw.append("[Change][").append(username).append("] Values are selected from table: ").append(tableName).append("\n");
             System.out.println("Values are selected from table: " + tableName + " by: " + username);
         }
 
@@ -176,18 +176,18 @@ public class query {
         List<String> columnValueList = Arrays.asList(columnValue);
         // Separate values into a arraylist
         System.out.println(columnNameList + " " + columnValueList);
-        long start = System.nanoTime();  // Get the start time
+        long start = System.nanoTime();  // Get the start Time
         // Link user to actions
         int inserted = action.insert(username, tableName, columnNameList, columnValueList);
-        long end = System.nanoTime();  // Get the end time
-        long executionTime = end - start;  // Calculate the execution time
-        fw1.append("[Execution time] time used for INSERT is ").append(String.valueOf(executionTime)).append(" nanoseconds\n");
+        long end = System.nanoTime();  // Get the end Time
+        long executionTime = end - start;  // Calculate the execution Time
+        fw1.append("[Execution Time][").append(username).append("] Time used for DROP is ").append(String.valueOf(executionTime)).append(" nanoseconds\n");
         //returns 0 if no changes allowed to make
         if (inserted == 0) {
-            fw.append("[Error] Values cannot be inserted into table: ").append(tableName).append("\n");
+            fw.append("[Error][").append(username).append("] Values cannot be inserted into table: ").append(tableName).append("\n");
             System.out.println("The table: " + tableName + " cannot be inserted.");
         } else {
-            fw.append("[Change] Values are inserted into table: ").append(tableName).append("\n");
+            fw.append("[Change][").append(username).append("] Values are inserted into table: ").append(tableName).append("\n");
             System.out.println("Values are inserted into table: " + tableName + " by: " + username);
         }
 
@@ -200,17 +200,17 @@ public class query {
         String conditionName = conditionString[0];
         String conditionValue = conditionString[1];
         System.out.println(tableName + " " + conditionName + " " + conditionValue);
-        long start = System.nanoTime();  // Get the start time
+        long start = System.nanoTime();  // Get the start Time
         // Link user to actions
         int deleted = action.delete(username, tableName, conditionName, conditionValue);
-        long end = System.nanoTime();  // Get the end time
-        long executionTime = end - start;  // Calculate the execution time
-        fw1.append("[Execution time] time used for DELETE is ").append(String.valueOf(executionTime)).append(" nanoseconds\n");
+        long end = System.nanoTime();  // Get the end Time
+        long executionTime = end - start;  // Calculate the execution Time
+        fw1.append("[Execution Time][").append(username).append("] Time used for DROP is ").append(String.valueOf(executionTime)).append(" nanoseconds\n");
         if (deleted == 0) {
-            fw.append("[Error] Unable to deleted values in table: ").append(tableName).append("\n");
+            fw.append("[Error][").append(username).append("] Unable to deleted values in table: ").append(tableName).append("\n");
             System.out.println("The table: " + tableName + " cannot be deleted.");
         } else {
-            fw.append("[Change] Deleted values in table: ").append(tableName).append("\n");
+            fw.append("[Change][").append(username).append("] Deleted values in table: ").append(tableName).append("\n");
             System.out.println("Deleted values in table: " + tableName + " by: " + username);
         }
     }
@@ -231,17 +231,17 @@ public class query {
         String conditionName = conditionString[0];
         String conditionValue = conditionString[1];
         System.out.println(tableName + "\n" + column + "\n" + value + "\n" + conditionName + "\n" + conditionValue);
-        long start = System.nanoTime();  // Get the start time
+        long start = System.nanoTime();  // Get the start Time
         // Link user to actions
         int updated = action.update(username, tableName, column, value, conditionName, conditionValue);
-        long end = System.nanoTime();  // Get the end time
-        long executionTime = end - start;  // Calculate the execution time
-        fw1.append("[Execution time] time used for UPDATE is ").append(String.valueOf(executionTime)).append(" nanoseconds\n");
+        long end = System.nanoTime();  // Get the end Time
+        long executionTime = end - start;  // Calculate the execution Time
+        fw1.append("[Execution Time][").append(username).append("] Time used for DROP is ").append(String.valueOf(executionTime)).append(" nanoseconds\n");
         if (updated == 0) {
-            fw.append("[Error] Unable to update values in table: ").append(tableName).append("\n");
+            fw.append("[Error][").append(username).append("] Unable to update values in table: ").append(tableName).append("\n");
             System.out.println("The table: " + tableName + " cannot be updated.");
         } else {
-            fw.append("[Change] The table: ").append(tableName).append(" is updated").append("\n");
+            fw.append("[Change][").append(username).append("] The table: ").append(tableName).append(" is updated").append("\n");
             System.out.println("The table: " + tableName + " is updated by: " + username);
         }
     }
@@ -249,16 +249,16 @@ public class query {
     private static void alterPK(Matcher alterPKSQL, String username, FileWriter fw, FileWriter fw1) throws IOException {
         String tableName = alterPKSQL.group(2);
         String primaryKey = alterPKSQL.group(3);
-        long start = System.nanoTime();  // Get the start time
+        long start = System.nanoTime();  // Get the start Time
         int alterPK = action.alter_primary(username, tableName, primaryKey);
-        long end = System.nanoTime();  // Get the end time
-        long executionTime = end - start;  // Calculate the execution time
-        fw1.append("[Execution time] time used for Alter Primary key is ").append(String.valueOf(executionTime)).append(" nanoseconds\n");
+        long end = System.nanoTime();  // Get the end Time
+        long executionTime = end - start;  // Calculate the execution Time
+        fw1.append("[Execution Time][").append(username).append("] Time used for DROP is ").append(String.valueOf(executionTime)).append(" nanoseconds\n");
         if (alterPK == 0) {
-            fw.append("[Error] Primary key: ").append(primaryKey).append(" cannot be added to table: ").append(tableName).append("\n");
+            fw.append("[Error][").append(username).append("] Primary key: ").append(primaryKey).append(" cannot be added to table: ").append(tableName).append("\n");
             System.out.println("Primary key: " + primaryKey + " cannot be added to table: " + tableName);
         } else {
-            fw.append("[Change] Primary key: ").append(primaryKey).append(" is added to table: ").append(tableName).append("\n");
+            fw.append("[Change][").append(username).append("] Primary key: ").append(primaryKey).append(" is added to table: ").append(tableName).append("\n");
             System.out.println("Primary key: " + primaryKey + " is added to table: " + tableName + " by: " + username);
         }
     }
@@ -268,14 +268,16 @@ public class query {
         String foreignKey = alterFKSQL.group(3);
         String tableName2 = alterFKSQL.group(4);
         String primaryKey = alterFKSQL.group(5);
-        long start = System.nanoTime();  // Get the start time
+        long start = System.nanoTime();  // Get the start Time
         int alterFK = action.alter_foreign(username, tableName1, foreignKey, tableName2, primaryKey);
-        long end = System.nanoTime();  // Get the end time
-        long executionTime = end - start;  // Calculate the execution time
-        fw1.append("[Execution time] time used for Alter Foreign Key is ").append(String.valueOf(executionTime)).append(" nanoseconds\n");
+        long end = System.nanoTime();  // Get the end Time
+        long executionTime = end - start;  // Calculate the execution Time
+        fw1.append("[Execution Time][").append(username).append("] Time used for DROP is ").append(String.valueOf(executionTime)).append(" nanoseconds\n");
         if (alterFK == 0) {
+            fw.append("[Error][").append(username).append("] Foreign key: ").append(foreignKey).append(" cannot be added to table: ").append(tableName1).append("\n");
             System.out.println("Foreign key: " + foreignKey + " cannot be added between table: " + tableName1 + " and table: " + tableName2);
         } else {
+            fw.append("[Change][").append(username).append("] Primary key: ").append(foreignKey).append(" is added to table: ").append(tableName1).append("\n");
             System.out.println("Foreign key: " + foreignKey + " is added between table: " + tableName1 + "and table: " + tableName2 + " by: " + username);
         }
 
