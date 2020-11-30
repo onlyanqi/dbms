@@ -223,9 +223,10 @@ public class action {
             }
 
             //Verify if the user can make the changes to the mentioned table
-            String line = br_ddc.readLine();
-            String primarycolumn = "";  //store the column name with the primary key tag. To use later
+            String line = br_ddc.readLine();  //read from data dictionary
+            ArrayList<String> primarykey = new ArrayList<>();  //store the column name with the primary key tag. To use later
             int flag = 0;  //1 if user can make a change
+
             while (line != null) {
                 if (line.equalsIgnoreCase(username)) {
                     line = br_ddc.readLine();
@@ -236,16 +237,14 @@ public class action {
                             String s[] = line.split(" ");
                             if (s.length > 2) {
                                 if (s[2].equalsIgnoreCase("pk")) {
-                                    primarycolumn = s[2];  //got the primary key column
+                                    primarykey.add(s[2]);//got the primary key column
                                     break;
                                 }
                             }
                             line = br_ddc.readLine();
                         }
                     }//if tablename isn't the same
-                    continue;
                 }
-
                 line = br_ddc.readLine();
             }
             fr_ddc.close();
@@ -254,40 +253,36 @@ public class action {
 
             if (flag == 1)   //user can make changes in the table
             {
-                //first check for primary column values
-                File table = new File(tablename + ".txt");
-                FileReader tablefr = new FileReader(table);
-                BufferedReader tablebr = new BufferedReader(tablefr);
-                List<String> col1 = new ArrayList<>();
-                String run = tablebr.readLine();  //run through the data stored in that column in the entire table
-                while (run != null)  //check if that column has any duplicate values
-                {
-                    if (!run.isBlank()) {
-                        String r[] = run.split(" ");
-                        String tablecolumn = r[0];
-                        if (tablecolumn.equalsIgnoreCase(primarycolumn))  //check if it's the same column as the one with primary key
-                        {
-                            col1.add(r[1]); //store the values already present in the table for the primary key column
-                        }
-                    }
-                    run = tablebr.readLine();
-                }
 
-
-                if (column.contains(primarycolumn)) //checks if the pk column has any value being inserted into it
-                {
-                    int index = column.indexOf(primarycolumn); //get the corresponding index of column if it is being inserted into with a new value
-
-                    for (String s : col1)  //check for duplicates in that column from the new values being added
+                for (String s : primarykey) {
+                    List<String> col1 = new ArrayList<>();
+                    //first check for primary column values
+                    File table = new File(tablename + ".txt");
+                    FileReader tablefr = new FileReader(table);
+                    BufferedReader tablebr = new BufferedReader(tablefr);
+                    String run = tablebr.readLine();  //run through the data stored in that column in the entire table
+                    while (run != null)  //check if that column has any duplicate values
                     {
-                        if (values.get(index).equalsIgnoreCase(s)) {
-                            System.out.println("Duplicate value exists while entering in primary key column!");
+                        if (!run.isBlank()) {
+                            String temp[] = run.split(" ");
+                            if (s.equalsIgnoreCase(temp[0]))  //get content of one primary key
+                            {
+                                col1.add(temp[1]);
+                            }
+                        }
+                        run = tablebr.readLine();
+                    }
+
+                    for (String t : col1) {
+                        int index = column.indexOf(s);  //get index of column user is updating to fetch the corresponding value
+                        if (t.equalsIgnoreCase(values.get(index))) {
+                            System.out.println("Duplicate values not allowed in primary key column");
                             return 0;
                         }
                     }
+                    tablebr.close();
+                    tablefr.close();
                 }
-                tablebr.close();
-                tablefr.close();
 
 
                 //if we reached here then primary column condition is fine
@@ -353,7 +348,7 @@ public class action {
                             {
                                 if (s[0].equalsIgnoreCase(column.get(i)))   //see if that column is updated
                                 {
-                                    check = i;  //gives the index
+                                    check = i;  //gives the index of column
                                     flag1 = 1;  //tells us there is an update here
                                     break;
                                 }
@@ -377,8 +372,8 @@ public class action {
                         }
                         tempinput = br.readLine(); //change to new line
                     } else {
-
                         fw_temp.write(tempinput);
+                        fw_temp.write("\n");
                         //if a different block then just copy as it is
                         if (tempinput.isBlank()) {
                             checkno++;    //change the block number when new line encountered
@@ -388,7 +383,6 @@ public class action {
                     }
 
                 }//end of while that runs through the entire datatext file
-
                 br.close();
                 fr.close();
                 fw_temp.close();
@@ -506,6 +500,9 @@ public class action {
                         }
                     } else {
                         tempinput = br.readLine();
+                        if(tempinput==null){
+                            return 1;
+                        }
                         if (tempinput.isEmpty()) {
                             block_check++;
                             tempinput = br.readLine();  //we don't print the empty line
@@ -532,6 +529,9 @@ public class action {
                             }
                         }
                         tempinput = br.readLine();
+                        if(tempinput==null){
+                            return 1;
+                        }
                         if (tempinput.isEmpty()) {
                             tempinput = br.readLine();
                             block_check++;
@@ -568,6 +568,8 @@ public class action {
             }
 
 
+        } catch (NullPointerException e) {
+            e.printStackTrace();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -1088,15 +1090,16 @@ public class action {
                     if (line.equalsIgnoreCase(tablename))  //user can delete the table now
                     {
                         flag = 1;
-                        while (line.isBlank()) {
+                        line = br.readLine();
+                        while (!line.isBlank()) {
                             line = br.readLine();
                         }//end of record
+                    } else {
+                        fw.write(username);  //if not the same tablename but same username,first write the username
+                        fw.write("\n");
+                        fw.write(line);   //pointer at tablename already. A different tablename
+                        fw.write("\n");
                     }
-
-                    fw.write(username);  //if not the same tablename but same username,first write the username
-                    fw.write("\n");
-                    fw.write(line);   //pointer at tablename already. A different tablename
-                    fw.write("\n");
                 } else   //if the username didn't match
                 {
                     fw.write(line);   //copy the none matched line
@@ -1104,6 +1107,7 @@ public class action {
                 }
                 line = br.readLine();
             }
+
             fw.close();
             br.close();
             fr.close();

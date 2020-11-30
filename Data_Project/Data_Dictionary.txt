@@ -1,2 +1,7 @@
+user
+school
+schoolId int PK
+name varchar(80)
+address varchar(80)
 
 
