@@ -46,11 +46,9 @@ public class query {
 
             if (createTableSQL.find()) {
                 fw.append("[User query][").append(username).append("] ").append(sql).append("\n");
-                System.out.println("create a table: " + sql);
                 create(createTableSQL, username, fw, fw1);
             } else if (dropTableSQL.find()) {
                 fw.append("[User query][").append(username).append("] ").append(sql).append("\n");
-                System.out.println("drop a table: " + sql);
                 drop(dropTableSQL, username, fw, fw1);
             } else if (selectSQL.find()) {
                 fw.append("[User query][").append(username).append("] ").append(sql).append("\n");
@@ -96,7 +94,6 @@ public class query {
             columnName.add(columnType[0]);
             dataType.add(columnType[1]);
         }
-        System.out.println(columnName + " " + dataType);
         long start = System.nanoTime();  // Get the start Time
         // Link user to actions
         int created = action.create(username, tableName, columnName, dataType);
@@ -115,7 +112,6 @@ public class query {
 
     private static void drop(Matcher dropTable, String username, FileWriter fw, FileWriter fw1) throws IOException {
         String tableName = dropTable.group(2);
-        System.out.println(tableName);
         long start = System.nanoTime();  // Get the start Time
         // Link user to actions
         int dropped = action.drop(username, tableName);
@@ -138,7 +134,6 @@ public class query {
         String[] fieldNamesString = fieldNames.split("\\s*,\\s*");
         List<String> fieldNamesStringList = Arrays.asList(fieldNamesString);
         String tableName = select.group(3);
-        System.out.println(fieldNamesStringList + " " + tableName);
         String conditionName = "";
         String conditionValue = "";
         if (select.group(4) != null) {
@@ -146,7 +141,6 @@ public class query {
             String[] conditionString = condition.split("\\s*=\\s*");
             conditionName = conditionString[0];
             conditionValue = conditionString[1];
-            System.out.println(conditionName + " " + conditionValue);
         }
         long start = System.nanoTime();  // Get the start Time
         // Link user to actions
@@ -175,7 +169,6 @@ public class query {
         String[] columnValue = values.split("\\s*,\\s*");
         List<String> columnValueList = Arrays.asList(columnValue);
         // Separate values into a arraylist
-        System.out.println(columnNameList + " " + columnValueList);
         long start = System.nanoTime();  // Get the start Time
         // Link user to actions
         int inserted = action.insert(username, tableName, columnNameList, columnValueList);
@@ -199,7 +192,6 @@ public class query {
         String[] conditionString = condition.split("\\s*=\\s*");
         String conditionName = conditionString[0];
         String conditionValue = conditionString[1];
-        System.out.println(tableName + " " + conditionName + " " + conditionValue);
         long start = System.nanoTime();  // Get the start Time
         // Link user to actions
         int deleted = action.delete(username, tableName, conditionName, conditionValue);
@@ -230,7 +222,6 @@ public class query {
         String[] conditionString = condition.split("\\s*=\\s*");
         String conditionName = conditionString[0];
         String conditionValue = conditionString[1];
-        System.out.println(tableName + "\n" + column + "\n" + value + "\n" + conditionName + "\n" + conditionValue);
         long start = System.nanoTime();  // Get the start Time
         // Link user to actions
         int updated = action.update(username, tableName, column, value, conditionName, conditionValue);

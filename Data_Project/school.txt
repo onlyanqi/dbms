@@ -1,8 +1,0 @@
-schoolId 1
-name Dalhousie
-address halifax
-
-schoolId 2
-name SMU
-address halifax
-

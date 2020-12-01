@@ -1,3 +1,0 @@
-student school FK
-school schoolId PK
-

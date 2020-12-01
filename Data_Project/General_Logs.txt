@@ -1,5 +1,0 @@
-[Execution Time][user] Time used for DROP is 5722036 nanoseconds
-[Execution Time][user] Time used for DROP is 630861 nanoseconds
-[Execution Time][user] Time used for DROP is 3890280 nanoseconds
-[Execution Time][user] Time used for DROP is 5278856 nanoseconds
-[Execution Time][user] Time used for DROP is 15930744 nanoseconds
