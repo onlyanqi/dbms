@@ -1,0 +1,4 @@
+[User query][anqi] select * from teacher;
+[Change][anqi] Values are selected from table: teacher
+[Create Dump][anqi] dump
+[Change][anqi] Dump file created by anqi

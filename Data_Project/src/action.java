@@ -500,7 +500,7 @@ public class action {
                         }
                     } else {
                         tempinput = br.readLine();
-                        if(tempinput==null){
+                        if (tempinput == null) {
                             return 1;
                         }
                         if (tempinput.isEmpty()) {
@@ -529,7 +529,7 @@ public class action {
                             }
                         }
                         tempinput = br.readLine();
-                        if(tempinput==null){
+                        if (tempinput == null) {
                             return 1;
                         }
                         if (tempinput.isEmpty()) {
@@ -857,7 +857,7 @@ public class action {
                     line2 = table2_br.readLine();
                 }
 
-                if (values1.size() > 1){
+                if (values1.size() > 1) {
                     flag4 = 1;
                 }
 
@@ -936,9 +936,9 @@ public class action {
                     System.out.println("New Relationship file created!");
                 }
                 FileWriter relationFW = new FileWriter(relationFile, true);
-                if(flag4 == 1){
+                if (flag4 == 1) {
                     relationFW.append(tableName1).append(" ").append(key1).append(" ").append("FK").append(" many").append("\n");
-                }else{
+                } else {
                     relationFW.append(tableName1).append(" ").append(key1).append(" ").append("FK").append(" 1").append("\n");
                 }
                 relationFW.append(tableName2).append(" ").append(key2).append(" ").append("PK").append(" 1").append("\n").append("\n");
@@ -1134,4 +1134,9 @@ public class action {
         return flag;
     }
 
+    // to craete dump file for the user
+    public static int dump(String username) {
+        System.out.println("Creating the dump file...");
+        return 1;
+    }
 }

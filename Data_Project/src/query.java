@@ -16,9 +16,9 @@ public class query {
     private static final Pattern ALTER_FK_PATTERN = Pattern.compile("(?i)(ALTER\\sTABLE\\s(\\w+)\\sADD\\sFOREIGN\\sKEY\\s\\(([\\s\\S]+)\\)\\sREFERENCES\\s(\\w+)\\s\\(([\\s\\S]+)\\);)");
 
     public static void parse(String username) throws IOException {
-        System.out.println("Please enter the SQL queries or type 'exit' to quit");
+        System.out.println("Please enter the SQL queries, type 'dump' to get your dump file, or type 'exit' to quit");
         Scanner sc = new Scanner(System.in);
-        String sql;
+        String input;
         File file = new File("Event_Logs.txt"); //default event log text file
         File file1 = new File("General_Logs.txt");  //default general log text file
         if (file.createNewFile())   //if no file exists, we create one
@@ -33,45 +33,60 @@ public class query {
         FileWriter fw1 = new FileWriter(file1, true);
 
         // User enter SQL queries, if not "exit" continue to match if it is a SQL statement
-        while (sc.hasNext() && !((sql = sc.nextLine()).equalsIgnoreCase("exit"))) {
+        while (sc.hasNext() && !((input = sc.nextLine()).equalsIgnoreCase("exit"))) {
             // Use matchers to match the regex patterns we wrote
-            Matcher createTableSQL = CREATE_TABLE_PATTERN.matcher(sql);
-            Matcher dropTableSQL = DROP_TABLE_PATTERN.matcher(sql);
-            Matcher selectSQL = SELECT_PATTERN.matcher(sql);
-            Matcher insertSQL = INSERT_PATTERN.matcher(sql);
-            Matcher deleteSQL = DELETE_PATTERN.matcher(sql);
-            Matcher updateSQL = UPDATE_PATTERN.matcher(sql);
-            Matcher alterPKSQL = ALTER_PK_PATTERN.matcher(sql);
-            Matcher alterFKSQL = ALTER_FK_PATTERN.matcher(sql);
+            Matcher createTableSQL = CREATE_TABLE_PATTERN.matcher(input);
+            Matcher dropTableSQL = DROP_TABLE_PATTERN.matcher(input);
+            Matcher selectSQL = SELECT_PATTERN.matcher(input);
+            Matcher insertSQL = INSERT_PATTERN.matcher(input);
+            Matcher deleteSQL = DELETE_PATTERN.matcher(input);
+            Matcher updateSQL = UPDATE_PATTERN.matcher(input);
+            Matcher alterPKSQL = ALTER_PK_PATTERN.matcher(input);
+            Matcher alterFKSQL = ALTER_FK_PATTERN.matcher(input);
 
             if (createTableSQL.find()) {
-                fw.append("[User query][").append(username).append("] ").append(sql).append("\n");
+                fw.append("[User query][").append(username).append("] ").append(input).append("\n");
                 create(createTableSQL, username, fw, fw1);
             } else if (dropTableSQL.find()) {
-                fw.append("[User query][").append(username).append("] ").append(sql).append("\n");
+                fw.append("[User query][").append(username).append("] ").append(input).append("\n");
                 drop(dropTableSQL, username, fw, fw1);
             } else if (selectSQL.find()) {
-                fw.append("[User query][").append(username).append("] ").append(sql).append("\n");
+                fw.append("[User query][").append(username).append("] ").append(input).append("\n");
                 select(selectSQL, username, fw, fw1);
             } else if (insertSQL.find()) {
-                fw.append("[User query][").append(username).append("] ").append(sql).append("\n");
+                fw.append("[User query][").append(username).append("] ").append(input).append("\n");
                 insert(insertSQL, username, fw, fw1);
             } else if (deleteSQL.find()) {
-                fw.append("[User query][").append(username).append("] ").append(sql).append("\n");
+                fw.append("[User query][").append(username).append("] ").append(input).append("\n");
                 delete(deleteSQL, username, fw, fw1);
             } else if (updateSQL.find()) {
-                fw.append("[User query][").append(username).append("] ").append(sql).append("\n");
+                fw.append("[User query][").append(username).append("] ").append(input).append("\n");
                 update(updateSQL, username, fw, fw1);
             } else if (alterPKSQL.find()) {
-                fw.append("[User query][").append(username).append("] ").append(sql).append("\n");
+                fw.append("[User query][").append(username).append("] ").append(input).append("\n");
                 alterPK(alterPKSQL, username, fw, fw1);
             } else if (alterFKSQL.find()) {
-                fw.append("[User query][").append(username).append("] ").append(sql).append("\n");
+                fw.append("[User query][").append(username).append("] ").append(input).append("\n");
                 alterFK(alterFKSQL, username, fw, fw1);
+            } else if (input.equalsIgnoreCase("dump")){
+                fw.append("[Create Dump][").append(username).append("] ").append(input).append("\n");
+                long start = System.nanoTime();  // Get the start Time
+                // Link user to actions
+                int dumped = action.dump(username);
+                long end = System.nanoTime();  // Get the end Time
+                long executionTime = end - start;  // Calculate the execution Time
+                fw1.append("[Execution Time][").append(username).append("] Time used for CREATE DUMP FILE is ").append(String.valueOf(executionTime)).append(" nanoseconds\n");
+                if (dumped == 0) {
+                    fw.append("[Error][").append(username).append("] Unable to create dump file").append("\n");
+                    System.out.println("The dump file cannot be created.");
+                } else {
+                    fw.append("[Change][").append(username).append("] Dump file created by ").append(username).append("\n");
+                    System.out.println("Dump file created by " + username);
+                }
             } else {
                 // Nothing matches with Regex patterns
-                fw.append("[User query error][").append(username).append("] ").append(sql).append(" is not in standard SQL format").append("\n");
-                System.out.println("Please make sure the input is in standard SQL format.\n" + sql + " is not valid.");
+                fw.append("[User query error][").append(username).append("] ").append(input).append(" is not in standard SQL format").append("\n");
+                System.out.println("Please make sure the input is in standard SQL format.\n" + input + " is not valid.");
             }
             // Link to next input
             System.out.println("Please enter the SQL queries or type 'exit' to quit.");

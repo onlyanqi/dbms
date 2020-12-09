@@ -1,0 +1,2 @@
+[Execution Time][anqi] Time used for SELECT is 9217560 nanoseconds
+[Execution Time][anqi] Time used for CREATE DUMP FILE is 44198 nanoseconds
