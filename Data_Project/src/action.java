@@ -746,6 +746,7 @@ public class action {
             int flag1 = 0; // 1 if the tableName1 matches.
             int flag2 = 0; // 1 if the tableName2 matches.
             int flag3 = 0; // 1 if values of key2 in table 2 contains all the values of key1 in table 1.
+            int flag4 = 0; // 1 if values of key1 in table 1 have more than 1 values
 
             while (line != null) {
                 if (line.equalsIgnoreCase(username))  //if same username
@@ -856,6 +857,10 @@ public class action {
                     line2 = table2_br.readLine();
                 }
 
+                if (values1.size() > 1){
+                    flag4 = 1;
+                }
+
                 if (values2.containsAll(values1)) {
                     flag3 = 1;
                 }
@@ -931,8 +936,12 @@ public class action {
                     System.out.println("New Relationship file created!");
                 }
                 FileWriter relationFW = new FileWriter(relationFile, true);
-                relationFW.append(tableName1).append(" ").append(key1).append(" ").append("FK").append("\n");
-                relationFW.append(tableName2).append(" ").append(key2).append(" ").append("PK").append("\n").append("\n");
+                if(flag4 == 1){
+                    relationFW.append(tableName1).append(" ").append(key1).append(" ").append("FK").append(" many").append("\n");
+                }else{
+                    relationFW.append(tableName1).append(" ").append(key1).append(" ").append("FK").append(" 1").append("\n");
+                }
+                relationFW.append(tableName2).append(" ").append(key2).append(" ").append("PK").append(" 1").append("\n").append("\n");
                 relationFW.close();
             }
 
