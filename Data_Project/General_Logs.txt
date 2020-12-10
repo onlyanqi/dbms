@@ -1,11 +1,13 @@
-[Execution Time][anqi] Time used for CREATE is 49664131 nanoseconds 
-[Execution Time][anqi] Time used for INSERT is 2869110 nanoseconds
-[Execution Time][anqi] Time used for INSERT is 1632109 nanoseconds
-[Execution Time][anqi] Time used for CREATE is 11770535 nanoseconds 
-[Execution Time][anqi] Time used for INSERT is 2353972 nanoseconds
-[Execution Time][anqi] Time used for INSERT is 669609 nanoseconds
-[Execution Time][anqi] Time used for SELECT is 76448246204 nanoseconds
-[Execution Time][anqi] Time used for SELECT is 7635451 nanoseconds
-[Execution Time][anqi] Time used for SELECT is 2961024 nanoseconds
-[Execution Time][anqi] Time used for SELECT is 15009171390 nanoseconds
-[Execution Time][anqi] Time used for CREATE DUMP FILE is 16083415 nanoseconds
+[Execution Time][anqi] Time used for CREATE is 8296129 nanoseconds 
+[Execution Time][anqi] Time used for INSERT is 6938362 nanoseconds
+[Execution Time][anqi] Time used for INSERT is 4119259 nanoseconds
+[Execution Time][anqi] Time used for CREATE is 1719240 nanoseconds 
+[Execution Time][anqi] Time used for INSERT is 4771648 nanoseconds
+[Execution Time][anqi] Time used for INSERT is 3778017 nanoseconds
+[Execution Time][anqi] Time used for SELECT is 12008170230 nanoseconds
+[Execution Time][anqi] Time used for SELECT is 12010365911 nanoseconds
+[Execution Time][anqi] Time used for SELECT is 12008208621 nanoseconds
+[Execution Time][anqi] Time used for ALTER PK is 5612244 nanoseconds
+[Execution Time][anqi] Time used for ALTER FK is 6237897 nanoseconds
+[Execution Time][anqi] Time used for INSERT is 3077133 nanoseconds
+[Execution Time][anqi] Time used for CREATE DUMP FILE is 2248713 nanoseconds
