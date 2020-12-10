@@ -1,0 +1,10 @@
+sid 1
+name stu1
+age 18
+school 1
+
+sid 2
+name stu2
+age 19
+school 2
+
