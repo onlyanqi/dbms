@@ -1,3 +1,0 @@
-teacher school FK many
-school schoolId PK 1
-

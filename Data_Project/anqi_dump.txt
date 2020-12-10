@@ -1,4 +1,3 @@
-anqi
 student
 sid int
 name varchar(80)

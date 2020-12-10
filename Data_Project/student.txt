@@ -1,0 +1,5 @@
+sid 1
+name stu1
+age 18
+school 1
+

@@ -1,2 +1,11 @@
-[Execution Time][anqi] Time used for SELECT is 9217560 nanoseconds
-[Execution Time][anqi] Time used for CREATE DUMP FILE is 44198 nanoseconds
+[Execution Time][anqi] Time used for CREATE is 49664131 nanoseconds 
+[Execution Time][anqi] Time used for INSERT is 2869110 nanoseconds
+[Execution Time][anqi] Time used for INSERT is 1632109 nanoseconds
+[Execution Time][anqi] Time used for CREATE is 11770535 nanoseconds 
+[Execution Time][anqi] Time used for INSERT is 2353972 nanoseconds
+[Execution Time][anqi] Time used for INSERT is 669609 nanoseconds
+[Execution Time][anqi] Time used for SELECT is 76448246204 nanoseconds
+[Execution Time][anqi] Time used for SELECT is 7635451 nanoseconds
+[Execution Time][anqi] Time used for SELECT is 2961024 nanoseconds
+[Execution Time][anqi] Time used for SELECT is 15009171390 nanoseconds
+[Execution Time][anqi] Time used for CREATE DUMP FILE is 16083415 nanoseconds
