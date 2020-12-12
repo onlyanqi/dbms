@@ -4,25 +4,22 @@
 [Change][anqi] Values are inserted into table: school
 [User query][anqi] insert into school (schoolId, name, address) values (2, SMU, halifax);
 [Change][anqi] Values are inserted into table: school
-[User query error][anqi]  is not in standard SQL format
-[User query error][anqi]  is not in standard SQL format
 [User query][anqi] create table student (sid int, name varchar(80), age int, school int);
 [Change][anqi] A new table: student is created
 [User query][anqi] insert into student (sid, name, age, school) values (1, stu1, 18,1);
 [Change][anqi] Values are inserted into table: student
 [User query][anqi] insert into student (sid, name, age, school) values (2, stu2, 19,2);
 [Change][anqi] Values are inserted into table: student
-[User query][anqi] Select * from student;
-[Change][anqi] Values are selected from table: student
-[User query][anqi] Select * from student;
-[Change][anqi] Values are selected from table: student
-[User query][anqi] Select * from student;
-[Change][anqi] Values are selected from table: student
+[User query error][anqi]  is not in standard SQL format
+[User query][anqi] Update student set name=anqi where sid=2;
+[Change][anqi] The table: student is updated
+[User query][anqi] Update student set name=anqi where sid=2;
+[Change][anqi] The table: student is updated
 [User query][anqi] Alter table school add primary key (schoolId);
 [Change][anqi] Primary key: schoolId is added to table: school
 [User query][anqi] Alter table student add foreign key (school) references school (schoolId);
 [Change][anqi] Primary key: school is added to table: student
-[User query][anqi] insert into student (sid, name, age, school) values (1, stu1, 18,1);
-[Error][anqi] Values cannot be inserted into table: student
 [Create Dump][anqi] dump
 [Change][anqi] Dump file created by anqi
+[User query][anqi] insert into student (sid, name, age, school) values (2, stu2, 19,2);
+[Error][anqi] Values cannot be inserted into table: student

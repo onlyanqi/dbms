@@ -89,7 +89,6 @@ public class action {
                 {
                     System.out.println("Data Dictionary Created");
                 }
-
                 //Verify if the user can make the changes to the mentioned table
                 String line = br_ddc.readLine();
                 int flag = 0;
@@ -231,6 +230,7 @@ public class action {
                 System.out.println("Table is locked, please try again later");
                 return 0;
             } else {
+                TimeUnit.SECONDS.sleep(20); // wait for 20 second to start doing actual operation
                 File ddc = new File("Data_Dictionary.txt");
                 FileReader fr_ddc = new FileReader(ddc);
                 BufferedReader br_ddc = new BufferedReader(fr_ddc);
@@ -415,6 +415,8 @@ public class action {
                     return 0;
                 }
             }
+        } catch (InterruptedException ex) {
+            ex.printStackTrace();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -448,7 +450,6 @@ public class action {
                 int flag = 0; //0 when no columns
                 int flag1 = 0; //0 when no conditions
 
-                TimeUnit.SECONDS.sleep(12); // wait for 20 second to start doing actual operation
                 //select columns from tablename where=
                 if (!conditionName.equalsIgnoreCase("") && !conditionVal.equalsIgnoreCase(""))   //Checking if both conditions are passed
                 {
@@ -602,8 +603,6 @@ public class action {
                     return 1;
                 }
             }
-        } catch (InterruptedException ex) {
-            ex.printStackTrace();
         } catch (NullPointerException e) {
             e.printStackTrace();
         } catch (FileNotFoundException e) {
